@@ -1,13 +1,24 @@
-import express from "express"
-import bodyParser from "body-parser"
-import mongoose from "mongoose"
-import cors from "cors"
-import dotenv from "dotenv"
-import multer from "multer"
-import helmet from "helmet"
-import morgan from "morgan"
-import path from "path"
-import { fileURLToPath } from "url"
+import express from "express";
+import bodyParser from "body-parser";
+import mongoose from "mongoose";
+import cors from "cors";
+import dotenv from "dotenv";
+import multer from "multer";
+import helmet from "helmet";
+import morgan from "morgan";
+import path from "path";
+import { fileURLToPath } from "url";
+import {login, register} from "./controllers/auth.js";
+
+import userRouter from "./routes/users.js"
+import { createPost } from "./controllers/posts.js";
+import { verifyToken } from "./middleware/auth.js";
+import postRouter from "./routes/posts.js";
+import { posts, users } from "./data/index.js";
+import User from "./models/User.js";
+import Post from "./models/post.js";
+
+
 
 /* configurations */
 const __filename=fileURLToPath(import.meta.url)
@@ -34,6 +45,13 @@ const storage = multer.diskStorage({
 
 const upload=multer({storage})
 
+/* Routes with files */
+app.post("/auth/register", upload.single("picture"), register);
+app.post("/posts",verifyToken,upload.single("picture",createPost))
+app.post("/auth/login",login)
+
+app.use("/users",userRouter)
+app.use("/posts",postRouter)
 
 /* mongoose setup*/
 const PORT = process.env.PORT || 6001;
